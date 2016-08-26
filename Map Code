@@ -1,0 +1,29 @@
+#Maps in one place!
+d <- read.csv("whatever.csv")
+
+#Add Somerville, MA if needed
+addresses <- paste(d$Address, "Somerville", "MA", sep=", ")
+
+#Now geocode the addresses
+library(ggmap) 
+locs <- geocode(addresses)
+
+#need to save it?
+write.csv(addresses, file="geocode.csv")
+
+# Where is the center of your map?
+ville <- "Somerville, MA"
+
+# Map details
+somMap <- get_map(location = ville, source = "stamen", maptype = "toner", crop = FALSE, zoom = 14)
+
+#Heat map
+ggmap(somMap) +
+  stat_density2d(
+    aes(x = lon, y = lat, fill = ..level..,
+        alpha = ..level..),
+    size = 2, bins =5, data = locs,
+    geom = "polygon") 
+
+#Add this to code to change density level: 
++ scale_alpha(range = c(0.5, 1), guide = FALSE)
